@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# 1. Pindai kebocoran rahasia sebelum commit dengan Gitleaks jika terpasang
+if command -v gitleaks >/dev/null 2>&1; then
+  echo "[pre-commit] Menjalankan pemindaian rahasia gitleaks..."
+  gitleaks protect --verbose --staged || {
+    echo "[ERROR] Terdeteksi rahasia/kunci kredensial pada commit staged! Batalkan commit."
+    exit 1
+  }
+fi
+
+# 2. Jalankan lint-staged (format & linting berkas yang diubah)
+npx lint-staged
+

@@ -1,0 +1,18 @@
+title = "Sistem Terintegrasi Gitleaks Configuration"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlists for safe files"
+paths = [
+  '''^\.env\.example$''',
+  '''^pnpm-lock\.yaml$''',
+  '''^packages/config/''',
+  '''^scripts/generate-keys\.mjs$'''
+]
+regexes = [
+  '''example''',
+  '''placeholder'''
+]
+

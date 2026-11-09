@@ -1,0 +1,43 @@
+# Node & Dependencies
+node_modules/
+.pnpm-store/
+.corepack/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.tsbuildinfo
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Testing coverage
+coverage/
+.nyc_output/
+
+# OS and Editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Local infra / Docker volumes
+infra/data/
+
+# Local environment shims (Windows sandbox)
+powershell.bat
+
