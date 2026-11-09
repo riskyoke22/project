@@ -1,0 +1,13 @@
+{
+  "name": "@sistem-terintegrasi/config",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "tsconfig.base.json",
+    "tsconfig.node.json",
+    "tsconfig.react.json",
+    "eslint-base.cjs",
+    "eslint-api.cjs",
+    "eslint-web.cjs"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "name": "sistem-terintegrasi-root",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "lint:fix": "pnpm -r run lint:fix",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "pnpm -r run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md,yml,yaml}\"",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:status": "tsx scripts/migrate.ts --status",
+    "db:seed": "tsx scripts/seed.ts",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.4.3",
+    "prettier": "^3.5.2",
+    "tsx": "^4.19.2"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.10",
+    "pg": "^8.23.1"
+  }
+}

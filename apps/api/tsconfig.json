@@ -1,0 +1,12 @@
+{
+  "extends": "@sistem-terintegrasi/config/tsconfig.node.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "paths": {
+      "@sistem-terintegrasi/shared": ["../../packages/shared/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

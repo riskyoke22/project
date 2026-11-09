@@ -1,0 +1,40 @@
+# Caddyfile - Reverse Proxy dan Pagar Keamanan Header
+# Hanya port 80/443 Caddy yang dibuka ke host (127.0.0.1)
+
+http://localhost, http://127.0.0.1 {
+    # 1. Header Keamanan Ketat (OWASP ASVS & docs/03-keamanan.md)
+    header {
+        # Cegah MIME sniffing
+        X-Content-Type-Options "nosniff"
+        # Cegah Clickjacking
+        X-Frame-Options "DENY"
+        # Kebijakan Referrer
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Permissions Policy
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+        # Content Security Policy ketat
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none';"
+        # Hapus header yang membocorkan teknologi server
+        -Server
+        -X-Powered-By
+    }
+
+    # 2. Routing API Backend
+    handle /api/* {
+        uri strip_prefix /api
+        reverse_proxy api:4000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+
+    # 3. Routing Frontend Web (Next.js)
+    handle {
+        reverse_proxy web:3000 {
+            header_up X-Real-IP {remote_host}
+            header_up X-Forwarded-For {remote_host}
+            header_up X-Forwarded-Proto {scheme}
+        }
+    }
+}
