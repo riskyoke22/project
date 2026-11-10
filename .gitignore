@@ -41,3 +41,7 @@ infra/data/
 # Local environment shims (Windows sandbox)
 powershell.bat
 
+# Agent tooling
+.agents/
+skills-lock.json
+
