@@ -10,5 +10,5 @@ if command -v gitleaks >/dev/null 2>&1; then
 fi
 
 # 2. Jalankan lint-staged (format & linting berkas yang diubah)
-npx lint-staged
+pnpm exec lint-staged
 
