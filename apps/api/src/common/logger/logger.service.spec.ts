@@ -3,6 +3,7 @@ import { AppLogger } from './logger.service';
 import { RequestLoggerMiddleware } from './request-logger.middleware';
 import { Request, Response } from 'express';
 import { EventEmitter } from 'events';
+import pino from 'pino';
 
 describe('AppLogger', () => {
   let appLogger: AppLogger;
@@ -12,17 +13,17 @@ describe('AppLogger', () => {
   });
 
   it('harus membuat instance pino logger dengan benar', () => {
-    const pino = appLogger.getPino();
-    expect(pino).toBeDefined();
-    expect(typeof pino.info).toBe('function');
-    expect(typeof pino.error).toBe('function');
-    expect(typeof pino.warn).toBe('function');
-    expect(typeof pino.debug).toBe('function');
+    const pinoInstance = appLogger.getPino();
+    expect(pinoInstance).toBeDefined();
+    expect(typeof pinoInstance.info).toBe('function');
+    expect(typeof pinoInstance.error).toBe('function');
+    expect(typeof pinoInstance.warn).toBe('function');
+    expect(typeof pinoInstance.debug).toBe('function');
   });
 
   it('harus memanggil pino.info saat appLogger.log() dipanggil', () => {
-    const pino = appLogger.getPino();
-    const spy = vi.spyOn(pino, 'info');
+    const pinoInstance = appLogger.getPino();
+    const spy = vi.spyOn(pinoInstance, 'info');
 
     appLogger.log('Pesan info', 'TestContext', { key: 'value' });
 
@@ -33,8 +34,8 @@ describe('AppLogger', () => {
   });
 
   it('harus memanggil pino.error saat appLogger.error() dipanggil', () => {
-    const pino = appLogger.getPino();
-    const spy = vi.spyOn(pino, 'error');
+    const pinoInstance = appLogger.getPino();
+    const spy = vi.spyOn(pinoInstance, 'error');
 
     appLogger.error('Pesan error', 'StackTrace', 'TestContext', { errCode: 500 });
 
@@ -45,8 +46,8 @@ describe('AppLogger', () => {
   });
 
   it('harus memanggil pino.warn saat appLogger.warn() dipanggil', () => {
-    const pino = appLogger.getPino();
-    const spy = vi.spyOn(pino, 'warn');
+    const pinoInstance = appLogger.getPino();
+    const spy = vi.spyOn(pinoInstance, 'warn');
 
     appLogger.warn('Pesan peringatan', 'TestContext');
 
@@ -57,8 +58,8 @@ describe('AppLogger', () => {
   });
 
   it('harus memanggil pino.debug saat appLogger.debug() dipanggil', () => {
-    const pino = appLogger.getPino();
-    const spy = vi.spyOn(pino, 'debug');
+    const pinoInstance = appLogger.getPino();
+    const spy = vi.spyOn(pinoInstance, 'debug');
 
     appLogger.debug('Pesan debug', 'TestContext');
 
@@ -66,6 +67,64 @@ describe('AppLogger', () => {
       expect.objectContaining({ context: 'TestContext' }),
       'Pesan debug',
     );
+  });
+
+  it('BUKTI REDAKSI: merahasiakan field sensitif (password, NIK, token, *_enc) dari log output', () => {
+    let capturedLogOutput = '';
+    const destination = {
+      write: (msg: string) => {
+        capturedLogOutput += msg;
+      },
+    };
+
+    const redactingPino = pino(
+      {
+        redact: {
+          paths: [
+            'password',
+            '*.password',
+            'token',
+            '*.token',
+            'nik',
+            '*.nik',
+            'national_id',
+            '*.national_id',
+            'nik_enc',
+            '*.nik_enc',
+            'phone_enc',
+            '*.phone_enc',
+          ],
+          censor: '[REDACTED]',
+        },
+      },
+      destination,
+    );
+
+    // Kirim objek payload yang memuat berbagai data sensitif
+    redactingPino.info({
+      user: 'ahmad',
+      password: 'SuperSecretPassword123!',
+      token: 'jwt.bearer.secret.token.xyz',
+      nik: '3201123456780001',
+      nik_enc: 'enc:v1:aes-256-gcm-encrypted-nik',
+      phone_enc: 'enc:v1:aes-256-gcm-encrypted-phone',
+      non_sensitive: 'publik',
+    });
+
+    // Verifikasi nilai plaintext sensitif TIDAK ADA dalam log output
+    expect(capturedLogOutput).not.toContain('SuperSecretPassword123!');
+    expect(capturedLogOutput).not.toContain('jwt.bearer.secret.token.xyz');
+    expect(capturedLogOutput).not.toContain('3201123456780001');
+    expect(capturedLogOutput).not.toContain('enc:v1:aes-256-gcm-encrypted-nik');
+    expect(capturedLogOutput).not.toContain('enc:v1:aes-256-gcm-encrypted-phone');
+
+    // Verifikasi bahwa placeholder [REDACTED] muncul menggantikannya
+    expect(capturedLogOutput).toContain('"password":"[REDACTED]"');
+    expect(capturedLogOutput).toContain('"token":"[REDACTED]"');
+    expect(capturedLogOutput).toContain('"nik":"[REDACTED]"');
+    expect(capturedLogOutput).toContain('"nik_enc":"[REDACTED]"');
+    expect(capturedLogOutput).toContain('"phone_enc":"[REDACTED]"');
+    expect(capturedLogOutput).toContain('"non_sensitive":"publik"');
   });
 });
 
@@ -142,8 +201,8 @@ describe('RequestLoggerMiddleware', () => {
     }) as unknown as Response;
 
     const nextMock = vi.fn();
-    const pino = appLogger.getPino();
-    const spy = vi.spyOn(pino, 'info');
+    const pinoInstance = appLogger.getPino();
+    const spy = vi.spyOn(pinoInstance, 'info');
 
     middleware.use(req, res, nextMock);
 

@@ -1,13 +1,23 @@
-import { Injectable, LoggerService } from '@nestjs/common';
+import { Injectable, LoggerService, Optional } from '@nestjs/common';
 import pino, { Logger as PinoLoggerInstance } from 'pino';
+import { AppConfigService, getEnv } from '../config/env.config';
 
 @Injectable()
 export class AppLogger implements LoggerService {
   private readonly logger: PinoLoggerInstance;
 
-  constructor() {
+  constructor(@Optional() private readonly config?: AppConfigService) {
+    let logLevel = 'debug';
+    try {
+      const env = this.config ? this.config.getAll() : getEnv();
+      logLevel = env.LOG_LEVEL || (env.NODE_ENV === 'production' ? 'info' : 'debug');
+    } catch {
+      // Fallback aman untuk unit test terisolasi di mana environment belum diinisialisasi
+      logLevel = 'debug';
+    }
+
     this.logger = pino({
-      level: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'info' : 'debug'),
+      level: logLevel,
       timestamp: pino.stdTimeFunctions.isoTime,
       formatters: {
         level(label) {
@@ -27,10 +37,22 @@ export class AppLogger implements LoggerService {
           '*.refreshToken',
           'nik',
           '*.nik',
+          'national_id',
+          '*.national_id',
           'identity_number',
           '*.identity_number',
           'secret',
           '*.secret',
+          'mfa_secret',
+          '*.mfa_secret',
+          '*_enc',
+          '*.*_enc',
+          'phone_enc',
+          '*.phone_enc',
+          'email_enc',
+          '*.email_enc',
+          'nik_enc',
+          '*.nik_enc',
         ],
         censor: '[REDACTED]',
       },
