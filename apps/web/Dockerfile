@@ -49,8 +49,11 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Salin output standalone
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/apps/web ./apps/web
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+# Validate that server.js exists in the copied standalone output
+RUN test -f ./apps/web/server.js || (echo "server.js not found" && exit 1)
+
 
 USER nextjs
 
