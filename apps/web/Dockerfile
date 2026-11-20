@@ -49,11 +49,11 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 
 # Salin output standalone
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone/apps/web ./apps/web
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
-# Validate that server.js exists in the copied standalone output
-RUN test -f ./apps/web/server.js || (echo "server.js not found" && exit 1)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./.next/static
 
+# Validasi ketersediaan file server.js
+RUN test -f ./server.js || (echo "server.js not found" && exit 1)
 
 USER nextjs
 
@@ -62,5 +62,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/ || exit 1
 
-CMD ["node", "apps/web/server.js"]
+CMD ["node", "server.js"]
 
