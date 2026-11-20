@@ -20,6 +20,7 @@
     "@sistem-terintegrasi/shared": "workspace:*",
     "dotenv": "^18.0.10",
     "drizzle-orm": "^0.45.4",
+    "express": "^4.22.1",
     "helmet": "^8.3.0",
     "pg": "^8.23.1",
     "pino": "^9.6.0",

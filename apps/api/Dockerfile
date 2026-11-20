@@ -52,6 +52,9 @@ COPY --from=builder /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=node:node /app/node_modules ./node_modules
 COPY --from=builder --chown=node:node /app/apps/api/node_modules ./apps/api/node_modules
 
+# Validasi integritas resolusi dependensi runtime API
+RUN node -e "require.resolve('express', { paths: ['/app/apps/api'] })"
+
 USER node
 
 EXPOSE 4000
