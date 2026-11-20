@@ -99,6 +99,15 @@ export class AuditService {
     for (let i = 0; i < records.length; i++) {
       const record = records[i];
 
+      // Guard against undefined / empty slot
+      if (!record) {
+        tampered.push({
+          id: `index:${i}`,
+          reason: 'INVALID_HASH_STRUCTURE',
+        });
+        continue;
+      }
+
       const currentPrevHash = record.prev_hash
         ? Buffer.isBuffer(record.prev_hash)
           ? record.prev_hash

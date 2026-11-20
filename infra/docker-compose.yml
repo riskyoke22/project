@@ -17,8 +17,8 @@ services:
     container_name: sistem_caddy
     restart: unless-stopped
     ports:
-      - '127.0.0.1:80:80'
-      - '127.0.0.1:443:443'
+      - '${CADDY_BIND_IP:-0.0.0.0}:80:80'
+      - '${CADDY_BIND_IP:-0.0.0.0}:443:443'
     volumes:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -77,6 +77,7 @@ services:
       - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:-minioadmin_secret}
       - MINIO_BUCKET_NAME=${MINIO_BUCKET_NAME:-sistem-terintegrasi-files}
       - APP_SECRET=${APP_SECRET}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000,http://192.168.120.198}
     expose:
       - '4000'
     networks:

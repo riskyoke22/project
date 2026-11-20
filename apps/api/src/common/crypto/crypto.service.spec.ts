@@ -67,7 +67,11 @@ describe('CryptoService - Enkripsi Envelope, Blind Index, & Password Hashing', (
 
       // Rusak satu byte pada ciphertext
       const ctBuf = Buffer.from(payload.ct, 'base64');
-      ctBuf[0] ^= 0xff; // Modifikasi byte
+      const firstByte = ctBuf[0];
+      if (firstByte === undefined) {
+        throw new Error('Ciphertext buffer is empty');
+      }
+      ctBuf[0] = firstByte ^ 0xff; // Modifikasi byte
       payload.ct = ctBuf.toString('base64');
 
       const tamperedEncrypted = `enc:v1:${Buffer.from(JSON.stringify(payload)).toString('base64')}`;
@@ -86,7 +90,12 @@ describe('CryptoService - Enkripsi Envelope, Blind Index, & Password Hashing', (
 
       // Rusak auth tag
       const tagBuf = Buffer.from(payload.tag, 'base64');
-      tagBuf[tagBuf.length - 1] ^= 0x01;
+      const lastIndex = tagBuf.length - 1;
+      const lastByte = tagBuf[lastIndex];
+      if (lastByte === undefined) {
+        throw new Error('Auth tag buffer is empty');
+      }
+      tagBuf[lastIndex] = lastByte ^ 0x01;
       payload.tag = tagBuf.toString('base64');
 
       const tamperedEncrypted = `enc:v1:${Buffer.from(JSON.stringify(payload)).toString('base64')}`;

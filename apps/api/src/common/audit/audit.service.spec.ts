@@ -53,9 +53,14 @@ describe('AuditService - Masking Data & Verifikasi Rantai Hash (Hash Chain)', ()
         { name: 'Item 2', token: 't2' },
       ];
       const maskedArray = auditService.maskSensitive(arrayInput);
-      expect(maskedArray[0].password).toBe('[REDACTED]');
-      expect(maskedArray[1].token).toBe('[REDACTED]');
-      expect(maskedArray[0].name).toBe('Item 1');
+      const firstItem = maskedArray[0];
+      const secondItem = maskedArray[1];
+      if (!firstItem || !secondItem) {
+        throw new Error('Masked array item is missing');
+      }
+      expect(firstItem.password).toBe('[REDACTED]');
+      expect(secondItem.token).toBe('[REDACTED]');
+      expect(firstItem.name).toBe('Item 1');
     });
   });
 
@@ -144,7 +149,11 @@ describe('AuditService - Masking Data & Verifikasi Rantai Hash (Hash Chain)', ()
       const chain = buildMockChain();
 
       // Penyerang menyunting after_data pada baris ke-2 langsung di database
-      chain[1].after_data = { full_name: 'Budi HACKED', status: 'ACTIVE' };
+      const secondRecord = chain.at(1);
+      if (!secondRecord) {
+        throw new Error('Mock record at index 1 is missing');
+      }
+      secondRecord.after_data = { full_name: 'Budi HACKED', status: 'ACTIVE' };
 
       const result = auditService.verifyChain(chain);
 
@@ -161,7 +170,11 @@ describe('AuditService - Masking Data & Verifikasi Rantai Hash (Hash Chain)', ()
       const chain = buildMockChain();
 
       // Penyerang mencoba memalsukan prev_hash baris ke-3
-      chain[2].prev_hash = Buffer.from(
+      const thirdRecord = chain.at(2);
+      if (!thirdRecord) {
+        throw new Error('Mock record at index 2 is missing');
+      }
+      thirdRecord.prev_hash = Buffer.from(
         '0000000000000000000000000000000000000000000000000000000000000000',
         'hex',
       );
@@ -188,6 +201,28 @@ describe('AuditService - Masking Data & Verifikasi Rantai Hash (Hash Chain)', ()
       const brokenLink = result.tamperedRecords.find((r) => r.id === 3);
       expect(brokenLink).toBeDefined();
       expect(brokenLink?.reason).toBe('PREV_HASH_MISMATCH');
+    });
+
+    it('memvalidasi rantai audit kosong (empty chain) sebagai valid', () => {
+      const emptyChain: AuditLogRecord[] = [];
+      const result = auditService.verifyChain(emptyChain);
+
+      expect(result.isValid).toBe(true);
+      expect(result.totalVerified).toBe(0);
+      expect(result.tamperedRecords).toHaveLength(0);
+    });
+
+    it('mendeteksi slot kosong atau undefined record pada rantai (INVALID_HASH_STRUCTURE)', () => {
+      const chain = buildMockChain();
+      delete chain[1];
+
+      const result = auditService.verifyChain(chain);
+
+      expect(result.isValid).toBe(false);
+      const tamperedRecord = result.tamperedRecords.find(
+        (r) => r.reason === 'INVALID_HASH_STRUCTURE',
+      );
+      expect(tamperedRecord).toBeDefined();
     });
   });
 });

@@ -49,7 +49,11 @@ export const EnvSchema = z.object({
   ARGON2_PARALLELISM: z.coerce.number().int().positive().default(1),
 
   // Keamanan HTTP & Rate Limiting
-  CORS_ORIGINS: z.string().default('http://localhost:3000,http://127.0.0.1:3000'),
+  CORS_ORIGINS: z
+    .string()
+    .default(
+      'http://localhost:3000,http://127.0.0.1:3000,http://192.168.120.198,http://192.168.120.198:3000',
+    ),
   RATE_LIMIT_TTL_SEC: z.coerce.number().int().positive().default(60),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
 });

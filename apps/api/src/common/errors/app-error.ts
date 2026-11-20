@@ -93,3 +93,14 @@ export class RateLimitError extends AppError {
     super(message, code, 429, true);
   }
 }
+
+/** Error internal database / persistensi data (HTTP 500, isOperational: false) */
+export class DatabaseError extends AppError {
+  constructor(
+    message: string = 'Terjadi kesalahan pada basis data',
+    code: string = 'DATABASE_ERROR',
+    details?: unknown,
+  ) {
+    super(message, code, 500, false, details);
+  }
+}

@@ -13,7 +13,7 @@ export class CsrfMiddleware implements NestMiddleware {
     this.allowedOrigins = new Set(this.config.corsOrigins);
   }
 
-  use(req: Request, res: Response, next: NextFunction) {
+  use(req: Request, _res: Response, next: NextFunction) {
     // Metode aman (GET, HEAD, OPTIONS) tidak memerlukan validasi CSRF
     if (!STATE_CHANGING_METHODS.has(req.method.toUpperCase())) {
       return next();

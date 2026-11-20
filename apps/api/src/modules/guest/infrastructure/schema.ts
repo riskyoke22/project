@@ -47,7 +47,9 @@ export const visits = guestSchema.table('visits', {
     .references(() => visitors.id),
   appointmentId: uuid('appointment_id').references(() => appointments.id),
   hostEmployeeId: uuid('host_employee_id'), // Referensi cross-module ke hr.employees (hanya ID)
+  hostEmployeeName: text('host_employee_name'), // Nama pegawai untuk walk-in tanpa UUID
   orgUnitId: uuid('org_unit_id'), // Referensi cross-module ke core.org_units (hanya ID)
+  hostOrgUnitName: text('host_org_unit_name'), // Nama unit untuk walk-in tanpa UUID
   purpose: text('purpose').notNull(),
   partySize: smallint('party_size').default(1).notNull(),
   badgeNumber: text('badge_number'),

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'node:crypto';
-import { hash, verify, Algorithm } from '@node-rs/argon2';
+import { hash, verify } from '@node-rs/argon2';
 import { AppConfigService } from '../config/env.config';
 import { EncryptedPayload, EncryptOptions, Argon2Options } from './crypto.types';
 
@@ -233,7 +233,7 @@ export class CryptoService {
   public async hashPassword(password: string, options?: Argon2Options): Promise<string> {
     const opts = { ...this.argon2Defaults, ...options };
     return hash(password, {
-      algorithm: Algorithm.Argon2id,
+      algorithm: 2, // Algorithm.Argon2id pada @node-rs/argon2 (nilai 2 untuk menghindari TS2748 ambient const enum pada isolatedModules)
       memoryCost: opts.memoryCost,
       timeCost: opts.timeCost,
       parallelism: opts.parallelism,

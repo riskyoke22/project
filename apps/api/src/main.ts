@@ -19,7 +19,10 @@ async function bootstrap() {
   const config = app.get(AppConfigService);
   app.useLogger(logger);
 
-  // 3. Keamanan HTTP: Helmet (CSP, HSTS, frameguard) & CORS Whitelist
+  // 3. Keamanan HTTP: Helmet (CSP, HSTS, frameguard), Trust Proxy, & CORS Whitelist
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.set('trust proxy', 1);
+
   app.use(createHelmetMiddleware());
   app.enableCors(createCorsOptions(config));
 

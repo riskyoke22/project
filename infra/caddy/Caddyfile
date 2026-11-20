@@ -1,7 +1,7 @@
 # Caddyfile - Reverse Proxy dan Pagar Keamanan Header
-# Hanya port 80/443 Caddy yang dibuka ke host (127.0.0.1)
+# Port 80/443 melayani localhost dan IP LAN kantor (192.168.120.198)
 
-http://localhost, http://127.0.0.1 {
+http://localhost, http://127.0.0.1, http://192.168.120.198 {
     # 1. Header Keamanan Ketat (OWASP ASVS & docs/03-keamanan.md)
     header {
         # Cegah MIME sniffing

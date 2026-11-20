@@ -118,7 +118,11 @@ describe('GlobalExceptionFilter', () => {
     filter.catch(error, host);
 
     expect(statusFn).toHaveBeenCalledWith(500);
-    const sentResponse = jsonFn.mock.calls[0][0];
+    const firstCall = jsonFn.mock.calls[0];
+    if (!firstCall) {
+      throw new Error('Expected jsonFn to have been called');
+    }
+    const sentResponse = firstCall[0];
 
     expect(sentResponse.success).toBe(false);
     expect(sentResponse.error.code).toBe('INTERNAL_SERVER_ERROR');

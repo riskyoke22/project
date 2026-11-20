@@ -23,11 +23,15 @@ describe('Route Security Scanner (Deny-by-Default Audit)', () => {
 
       const prototype = ControllerClass.prototype;
       const methodNames = Object.getOwnPropertyNames(prototype).filter(
-        (name) => name !== 'constructor' && typeof prototype[name] === 'function',
+        (name) =>
+          name !== 'constructor' && typeof prototype[name as keyof typeof prototype] === 'function',
       );
 
       for (const methodName of methodNames) {
-        const handler = prototype[methodName];
+        const handler = prototype[methodName as keyof typeof prototype];
+        if (typeof handler !== 'function') {
+          continue;
+        }
         const isHandlerPublic = reflector.get<boolean>(IS_PUBLIC_KEY, handler);
         const handlerPermissions = reflector.get<string[]>(PERMISSIONS_KEY, handler);
 
